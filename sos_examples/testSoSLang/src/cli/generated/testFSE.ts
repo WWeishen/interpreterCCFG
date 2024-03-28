@@ -333,7 +333,7 @@ export class CCFGVisitor implements SimpleLVisitor {
     previousNode = initializeVarStateModificationNode
     }
     previousNode.functionsNames = [...previousNode.functionsNames, ...[`${previousNode.uid}initializeVar`]] 
-    previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let Number ${getName(node)}1376 = ${node.initialValue}; //undefined`,`
+    previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let ${getName(node)}1376 = ${node.initialValue}; //undefined`,`
                 sigma.set("${getName(node)}currentValue", new Number(${getName(node)}1376))`]] //AA
     
         {let e = ccfg.addEdge(previousNode,terminatesVariableNode)
@@ -379,7 +379,7 @@ export class CCFGVisitor implements SimpleLVisitor {
         
         previousNode.returnType = "Number"
         previousNode.functionsNames = [`${previousNode.uid}accessVarRef`] //overwrite existing name
-        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let Number ${getName(node)}1579 = Number(sigma.get("${getName(node.theVar)}currentValue");//currentValue}`,`Number ${getName(node)}terminates =  ${getName(node)}1579;`,`return ${getName(node)}terminates;`]] //GG
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let ${getName(node)}1579 = new Number(sigma.get("${getName(node.theVar)}currentValue");//currentValue}`,`${getName(node)}terminates =  ${getName(node)}1579;`,`return ${getName(node)}terminates;`]] //GG
     
         return [ccfg,startsVarRefNode,terminatesVarRefNode]
     }
@@ -496,7 +496,7 @@ export class CCFGVisitor implements SimpleLVisitor {
             }
             {
             let e = ccfg.addEdge(previousNode,thenStartsNodecondTrueStart)
-            e.guards = [...e.guards, ...[`Boolean(${getName(node.cond)}terminates == true)`]] //FF
+            e.guards = [...e.guards, ...[`(${getName(node.cond)}terminates == true)`]] //FF
             }
             
         }else{
@@ -559,7 +559,7 @@ export class CCFGVisitor implements SimpleLVisitor {
             }
             {
             let e = ccfg.addEdge(previousNode,elseStartsNodecondFalseStart)
-            e.guards = [...e.guards, ...[`Boolean(${getName(node.cond)}terminates == false)`]] //FF
+            e.guards = [...e.guards, ...[`(${getName(node.cond)}terminates == false)`]] //FF
             }
             
         }else{
@@ -711,7 +711,7 @@ export class CCFGVisitor implements SimpleLVisitor {
     previousNode = executeAssignment2StateModificationNode
     }
     previousNode.functionsNames = [...previousNode.functionsNames, ...[`${previousNode.uid}executeAssignment2`]] 
-    previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let Number ${getName(node)}2520 = resRight; // was ${getName(node)}2354; but using the parameter name now`,`                                 
+    previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let  ${getName(node)}2520 = resRight; // was ${getName(node)}2354; but using the parameter name now`,`                                 
                 sigma.set("${getName(node.variable)}currentValue", new Number(${getName(node)}2520))`]] //AA
     
         {let e = ccfg.addEdge(previousNode,terminatesAssignmentNode)
@@ -806,12 +806,12 @@ export class CCFGVisitor implements SimpleLVisitor {
     }
     
         {let e = ccfg.addEdge(previousNode,ConjunctionOrJoinNode)
-        e.guards = [...e.guards, ...[`Boolean(${getName(node.lhs)}terminates == false)`]] //EE
+        e.guards = [...e.guards, ...[`(${getName(node.lhs)}terminates == false)`]] //EE
         }
         
         previousNode.returnType = "Boolean"
         previousNode.functionsNames = [`${previousNode.uid}evaluateConjunction2`] //overwrite existing name
-        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`Boolean ${getName(node)}terminates =  false;`,`return ${getName(node)}terminates;`]] //GG
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`${getName(node)}terminates =  false;`,`return ${getName(node)}terminates;`]] //GG
     
         let rhsTerminatesNodeevaluateConjunction3 = ccfg.getNodeFromName("terminates"+getASTNodeUID(node.rhs))
             if(rhsTerminatesNodeevaluateConjunction3 == undefined){
@@ -836,12 +836,12 @@ export class CCFGVisitor implements SimpleLVisitor {
     }
     
         {let e = ccfg.addEdge(previousNode,ConjunctionOrJoinNode)
-        e.guards = [...e.guards, ...[`Boolean(${getName(node.rhs)}terminates == false)`]] //EE
+        e.guards = [...e.guards, ...[`(${getName(node.rhs)}terminates == false)`]] //EE
         }
         
         previousNode.returnType = "Boolean"
         previousNode.functionsNames = [`${previousNode.uid}evaluateConjunction3`] //overwrite existing name
-        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`Boolean ${getName(node)}terminates =  false;`,`return ${getName(node)}terminates;`]] //GG
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`${getName(node)}terminates =  false;`,`return ${getName(node)}terminates;`]] //GG
     
     let evaluateConjunction4AndJoinNode: Node = new AndJoin("andJoinNode"+getASTNodeUID(node.lhs))
     ccfg.addNode(evaluateConjunction4AndJoinNode)
@@ -879,12 +879,12 @@ export class CCFGVisitor implements SimpleLVisitor {
     }
     
         {let e = ccfg.addEdge(previousNode,ConjunctionOrJoinNode)
-        e.guards = [...e.guards, ...[`Boolean(${getName(node.lhs)}terminates == true)`,`Boolean(${getName(node.rhs)}terminates == true)`]] //EE
+        e.guards = [...e.guards, ...[`(${getName(node.lhs)}terminates == true)`,`(${getName(node.rhs)}terminates == true)`]] //EE
         }
         
         previousNode.returnType = "Boolean"
         previousNode.functionsNames = [`${previousNode.uid}evaluateConjunction4`] //overwrite existing name
-        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`Boolean ${getName(node)}terminates =  true;`,`return ${getName(node)}terminates;`]] //GG
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`${getName(node)}terminates =  true;`,`return ${getName(node)}terminates;`]] //GG
     
         return [ccfg,startsConjunctionNode,terminatesConjunctionNode]
     }
@@ -953,7 +953,7 @@ export class CCFGVisitor implements SimpleLVisitor {
             throw new Error("impossible to be there andJoinNode"+getASTNodeUID(node.right))
         }
         multipleSynchroNode.params = [...multipleSynchroNode.params, ...[Object.assign( new TypedElement(), JSON.parse(`{ "name": "n2", "type": "Number"}`)),Object.assign( new TypedElement(), JSON.parse(`{ "name": "n1", "type": "Number"}`))]]
-        multipleSynchroNode.functionsDefs = [...multipleSynchroNode.functionsDefs, ...[`Number ${getName(node)}4267 = n2;`,`Number ${getName(node)}4292 = n1;`]] //HH
+        multipleSynchroNode.functionsDefs = [...multipleSynchroNode.functionsDefs, ...[`${getName(node)}4267 = n2;`,`${getName(node)}4292 = n1;`]] //HH
     }
     
     {
@@ -970,7 +970,7 @@ export class CCFGVisitor implements SimpleLVisitor {
         
         previousNode.returnType = "Number"
         previousNode.functionsNames = [`${previousNode.uid}finishPlus`] //overwrite existing name
-        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let Number ${getName(node)}4411 = n1; // was ${getName(node)}4292; but using the parameter name now`,`let Number ${getName(node)}4416 = n2; // was ${getName(node)}4267; but using the parameter name now`,`Number ${getName(node)}4410 = ${getName(node)}4411 + ${getName(node)}4416;`,`Number ${getName(node)}terminates =  ${getName(node)}4410;`,`return ${getName(node)}terminates;`]] //GG
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let  ${getName(node)}4411 = n1; // was ${getName(node)}4292; but using the parameter name now`,`let  ${getName(node)}4416 = n2; // was ${getName(node)}4267; but using the parameter name now`,`${getName(node)}4410 = ${getName(node)}4411 + ${getName(node)}4416;`,`${getName(node)}terminates =  ${getName(node)}4410;`,`return ${getName(node)}terminates;`]] //GG
     
         return [ccfg,startsPlusNode,terminatesPlusNode]
     }
@@ -1007,7 +1007,7 @@ export class CCFGVisitor implements SimpleLVisitor {
         
         previousNode.returnType = "Boolean"
         previousNode.functionsNames = [`${previousNode.uid}evalBooleanConst`] //overwrite existing name
-        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let Boolean ${getName(node)}4630 = Boolean(sigma.get("${getName(node)}constantValue");//constantValue}`,`Boolean ${getName(node)}terminates =  ${getName(node)}4630;`,`return ${getName(node)}terminates;`]] //GG
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let ${getName(node)}4630 = new Boolean(sigma.get("${getName(node)}constantValue");//constantValue}`,`${getName(node)}terminates =  ${getName(node)}4630;`,`return ${getName(node)}terminates;`]] //GG
     
         return [ccfg,startsBooleanConstNode,terminatesBooleanConstNode]
     }
@@ -1124,7 +1124,7 @@ export class CCFGVisitor implements SimpleLVisitor {
             }
             {
             let e = ccfg.addEdge(previousNode,bodyStartsNodewhileBodyStart)
-            e.guards = [...e.guards, ...[`Boolean(${getName(node.cond)}terminates == true)`]] //FF
+            e.guards = [...e.guards, ...[`(${getName(node.cond)}terminates == true)`]] //FF
             }
             
         }else{
@@ -1223,7 +1223,7 @@ export class CCFGVisitor implements SimpleLVisitor {
     }
     
         {let e = ccfg.addEdge(previousNode,terminatesWhileNode)
-        e.guards = [...e.guards, ...[`Boolean(${getName(node.cond)}terminates == false)`]] //EE
+        e.guards = [...e.guards, ...[`(${getName(node.cond)}terminates == false)`]] //EE
         }
         
         previousNode.returnType = "void"

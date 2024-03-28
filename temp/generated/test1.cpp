@@ -21,7 +21,7 @@ void functioninit5Variable(){
 	sigma.set("Variable0_0_0_10currentValue",new Number();//A1
 }
 void function7initializeVar(){
-	let Number Variable0_0_0_101376 = 1; //undefined
+	let Variable0_0_0_101376 = 1; //undefined
 	
                 sigma.set("Variable0_0_0_10currentValue", new Number(Variable0_0_0_101376))
 }
@@ -29,7 +29,7 @@ void functioninit9Variable(){
 	sigma.set("Variable1_0_1_10currentValue",new Number();//A1
 }
 void function11initializeVar(){
-	let Number Variable1_0_1_101376 = 4; //undefined
+	let Variable1_0_1_101376 = 4; //undefined
 	
                 sigma.set("Variable1_0_1_10currentValue", new Number(Variable1_0_1_101376))
 }
@@ -40,7 +40,7 @@ void function14statementsInOrder1(){
 	
 }
 void function15initializeVar(){
-	let Number Variable2_0_2_101376 = 0; //undefined
+	let Variable2_0_2_101376 = 0; //undefined
 	
                 sigma.set("Variable2_0_2_10currentValue", new Number(Variable2_0_2_101376))
 }

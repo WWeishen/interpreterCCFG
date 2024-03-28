@@ -930,11 +930,11 @@ function visitValuedEventRefComparison(valuedEventRefComparison: ValuedEventRefC
         //     varType = inferType(valuedEventRefComparison.literal, new Map())
         // }
         if(valuedEventRefComparison.$type == "ImplicitValuedEventRefConstantComparison"){
-            res = res + `\`Boolean(\${getName(node.${(valuedEventRefComparison.membercall as MemberCall).element?.$refText})}${"terminates"} == ${(typeof(v) == "string")?v:v.$cstNode?.text})\``
+            res = res + `\`(\${getName(node.${(valuedEventRefComparison.membercall as MemberCall).element?.$refText})}${"terminates"} == ${(typeof(v) == "string")?v:v.$cstNode?.text})\``
         }
         if(valuedEventRefComparison.$type == "ExplicitValuedEventRefConstantComparison"){
             let prev = (valuedEventRefComparison.membercall as MemberCall)?.previous
-            res = res + `\`Boolean(\${getName(node.${prev != undefined?(prev as MemberCall).element?.ref?.name:"TOFIX"})}${(valuedEventRefComparison.membercall as MemberCall).element?.$refText} == ${(typeof(v) == "string")?v:v.$cstNode?.text})\``
+            res = res + `\`(\${getName(node.${prev != undefined?(prev as MemberCall).element?.ref?.name:"TOFIX"})}${(valuedEventRefComparison.membercall as MemberCall).element?.$refText} == ${(typeof(v) == "string")?v:v.$cstNode?.text})\``
         }
     }
     return res
@@ -953,13 +953,13 @@ function visitValuedEventRef(valuedEventRef: ValuedEventRef | undefined): [strin
         let varType = inferType(v, new Map())
         let typeName = getJSVariableTypeName(varType.$type)
         if(v != undefined && valuedEventRef.$type == "ImplicitValuedEventRef"){
-            res = res + `\`${typeName} \${getName(node)}${v.$cstNode?.offset} = ${v.name};\``//valuedEventRef  \${getName(node.${(valuedEventRef.membercall as MemberCall).element?.$refText})}${"terminates"}\``
+            res = res + `\`\${getName(node)}${v.$cstNode?.offset} = ${v.name};\``//valuedEventRef  \${getName(node.${(valuedEventRef.membercall as MemberCall).element?.$refText})}${"terminates"}\``
             let param:TypedElement = new TypedElement(v.name, typeName)
             return [res, param]
         }
         if(v != undefined && valuedEventRef.$type == "ExplicitValuedEventRef"){
             // let prev = (valuedEventRef.membercall as MemberCall)?.previous
-            res = res + `\`${typeName} \${getName(node)}${v.$cstNode?.offset} = ${v.name};\`` //valuedEventRef \${getName(node.${prev != undefined?(prev as MemberCall).element?.ref?.name:"TOFIX"})}${(valuedEventRef.membercall as MemberCall).element?.$refText};\``
+            res = res + `\` \${getName(node)}${v.$cstNode?.offset} = ${v.name};\`` //valuedEventRef \${getName(node.${prev != undefined?(prev as MemberCall).element?.ref?.name:"TOFIX"})}${(valuedEventRef.membercall as MemberCall).element?.$refText};\``
             let param:TypedElement = new TypedElement(v.name, typeName)
             return [res, param]
         }
@@ -1015,17 +1015,17 @@ function visitValuedEventEmission(valuedEmission: ValuedEventEmission | undefine
             let rightRes = createVariableFromMemberCall(rhs as MemberCall, rhsTypeName)
             res = res + rightRes+","
             let applyOp = (valuedEmission.data as BinaryExpression).operator
-            res = res + `\`${typeName} \${getName(node)}${valuedEmission.data.$cstNode?.offset} = \${getName(node)}${lhs.$cstNode?.offset} ${applyOp} \${getName(node)}${rhs.$cstNode?.offset};\``
+            res = res + `\`\${getName(node)}${valuedEmission.data.$cstNode?.offset} = \${getName(node)}${lhs.$cstNode?.offset} ${applyOp} \${getName(node)}${rhs.$cstNode?.offset};\``
         }
         if(valuedEmission.data != undefined && valuedEmission.data.$type == "BooleanExpression" || valuedEmission.data.$type == "NumberExpression" || valuedEmission.data.$type == "StringExpression"){
-            res = `\`${typeName} \${getName(node)}${(valuedEmission.event as MemberCall).element?.ref?.name} =  ${valuedEmission.data.$cstNode?.text};\``
+            res = `\`\${getName(node)}${(valuedEmission.event as MemberCall).element?.ref?.name} =  ${valuedEmission.data.$cstNode?.text};\``
             res = res + "," +`\`return \${getName(node)}${(valuedEmission.event as MemberCall).element?.ref?.name};\``
             return [res, typeName]
         }
         if(res.length > 0){
             res = res + ","
         }
-        res = res + `\`${typeName} \${getName(node)}${(valuedEmission.event as MemberCall).element?.ref?.name} =  \${getName(node)}${valuedEmission.data.$cstNode?.offset};\``
+        res = res + `\`\${getName(node)}${(valuedEmission.event as MemberCall).element?.ref?.name} =  \${getName(node)}${valuedEmission.data.$cstNode?.offset};\``
         res = res + "," +`\`return \${getName(node)}${(valuedEmission.event as MemberCall).element?.ref?.name};\``
         return [res, typeName]
     }
@@ -1040,13 +1040,13 @@ function createVariableFromMemberCall(data: MemberCall, typeName: string): strin
         return res
     }
     if (elem?.$type == "VariableDeclaration") {
-        res = res + `\`let ${typeName} \${getName(node)}${data.$cstNode?.offset} = ${typeName}(sigma.get("\${getName(node${prev != undefined ? "."+prev.$refText : ""})}${elem.name}");//${elem.name}}\``
+        res = res + `\`let \${getName(node)}${data.$cstNode?.offset} = new ${typeName}(sigma.get("\${getName(node${prev != undefined ? "."+prev.$refText : ""})}${elem.name}");//${elem.name}}\``
     } 
     else if (elem?.$type == "TemporaryVariable") {
-        res = res + `\`let ${typeName} \${getName(node)}${data.$cstNode?.offset} = ${elem.name}; // was \${getName(node)}${prev != undefined ? prev?.ref?.$cstNode?.offset : elem.$cstNode?.offset}; but using the parameter name now\``
+        res = res + `\`let  \${getName(node)}${data.$cstNode?.offset} = ${elem.name}; // was \${getName(node)}${prev != undefined ? prev?.ref?.$cstNode?.offset : elem.$cstNode?.offset}; but using the parameter name now\``
     }
     else /*if (elem?.$type == "Assignment")*/ {
-        res = res + `\`let ${typeName} \${getName(node)}${data.$cstNode?.offset} = \${node.${data.$cstNode?.text}};\ //${elem.name}\``
+        res = res + `\`let \${getName(node)}${data.$cstNode?.offset} = \${node.${data.$cstNode?.text}};\ //${elem.name}\``
     }
     return res
 }

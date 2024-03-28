@@ -8,7 +8,7 @@ sigma.set(\"Variable0_0_0_10currentValue\",new Number();//A1
   "6" [label="6:terminatesVariable0_0_0_10" shape="ellipse" ];
   "7" [label="7:initializeVarStateModificationNode:
 void function7initializeVar(){
-let Number Variable0_0_0_101376 = 1; //undefined
+let Variable0_0_0_101376 = 1; //undefined
 
                 sigma.set(\"Variable0_0_0_10currentValue\", new Number(Variable0_0_0_101376))
 }" shape="ellipse" ];
@@ -22,7 +22,7 @@ sigma.set(\"Variable1_0_1_10currentValue\",new Number();//A1
   "10" [label="10:terminatesVariable1_0_1_10" shape="ellipse" ];
   "11" [label="11:initializeVarStateModificationNode:
 void function11initializeVar(){
-let Number Variable1_0_1_101376 = 4; //undefined
+let Variable1_0_1_101376 = 4; //undefined
 
                 sigma.set(\"Variable1_0_1_10currentValue\", new Number(Variable1_0_1_101376))
 }" shape="ellipse" ];
@@ -36,7 +36,7 @@ sigma.set(\"Variable2_0_2_10currentValue\",new Number();//A1
   "14" [label="14:terminatesVariable2_0_2_10" shape="ellipse" ];
   "15" [label="15:initializeVarStateModificationNode:
 void function15initializeVar(){
-let Number Variable2_0_2_101376 = 0; //undefined
+let Variable2_0_2_101376 = 0; //undefined
 
                 sigma.set(\"Variable2_0_2_10currentValue\", new Number(Variable2_0_2_101376))
 }" shape="ellipse" ];
