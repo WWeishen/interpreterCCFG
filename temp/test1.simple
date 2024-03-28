@@ -1,0 +1,4 @@
+var v1 = 1          //v1Decl
+var v2 = 4          //v2Decl
+var v3 = 0          //v3Decl
+

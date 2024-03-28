@@ -304,7 +304,7 @@ export class CCFGVisitor implements SimpleLVisitor {
         let ccfg: ContainerNode = new ContainerNode(getASTNodeUID(node))
 
 
-        let startsVariableNode: Node = new Step("starts"+getASTNodeUID(node),[`sigma["${getName(node)}currentValue"] = new int();`])
+        let startsVariableNode: Node = new Step("starts"+getASTNodeUID(node),[`sigma.set("${getName(node)}currentValue",new Number();//A1`])
         if(startsVariableNode.functionsDefs.length>0){
             startsVariableNode.returnType = "void"
         }
@@ -333,9 +333,8 @@ export class CCFGVisitor implements SimpleLVisitor {
     previousNode = initializeVarStateModificationNode
     }
     previousNode.functionsNames = [...previousNode.functionsNames, ...[`${previousNode.uid}initializeVar`]] 
-    previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`int ${getName(node)}1376 = ${node.initialValue}; //undefined`,`//TODO: fix this and avoid memory leak by deleting, constructing appropriately
-                const std::lock_guard<std::mutex> lock(sigma_mutex);
-                (*((int*)sigma["${getName(node)}currentValue"])) = ${getName(node)}1376;`]] //AA
+    previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let Number ${getName(node)}1376 = ${node.initialValue}; //undefined`,`
+                sigma.set("${getName(node)}currentValue", new Number(${getName(node)}1376))`]] //AA
     
         {let e = ccfg.addEdge(previousNode,terminatesVariableNode)
         e.guards = [...e.guards, ...[]] //EE
@@ -378,9 +377,9 @@ export class CCFGVisitor implements SimpleLVisitor {
         e.guards = [...e.guards, ...[]] //EE
         }
         
-        previousNode.returnType = "int"
+        previousNode.returnType = "Number"
         previousNode.functionsNames = [`${previousNode.uid}accessVarRef`] //overwrite existing name
-        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`const std::lock_guard<std::mutex> lock(sigma_mutex);`,`int ${getName(node)}1579 = *(int *) sigma["${getName(node.theVar)}currentValue"];//currentValue}`,`int ${getName(node)}terminates =  ${getName(node)}1579;`,`return ${getName(node)}terminates;`]] //GG
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let Number ${getName(node)}1579 = Number(sigma.get("${getName(node.theVar)}currentValue");//currentValue}`,`Number ${getName(node)}terminates =  ${getName(node)}1579;`,`return ${getName(node)}terminates;`]] //GG
     
         return [ccfg,startsVarRefNode,terminatesVarRefNode]
     }
@@ -497,7 +496,7 @@ export class CCFGVisitor implements SimpleLVisitor {
             }
             {
             let e = ccfg.addEdge(previousNode,thenStartsNodecondTrueStart)
-            e.guards = [...e.guards, ...[`(bool)${getName(node.cond)}terminates == true`]] //FF
+            e.guards = [...e.guards, ...[`Boolean(${getName(node.cond)}terminates == true)`]] //FF
             }
             
         }else{
@@ -560,7 +559,7 @@ export class CCFGVisitor implements SimpleLVisitor {
             }
             {
             let e = ccfg.addEdge(previousNode,elseStartsNodecondFalseStart)
-            e.guards = [...e.guards, ...[`(bool)${getName(node.cond)}terminates == false`]] //FF
+            e.guards = [...e.guards, ...[`Boolean(${getName(node.cond)}terminates == false)`]] //FF
             }
             
         }else{
@@ -707,14 +706,13 @@ export class CCFGVisitor implements SimpleLVisitor {
     ccfg.addNode(executeAssignment2StateModificationNode)
     let e = ccfg.addEdge(previousNode,executeAssignment2StateModificationNode)
     e.guards = [...e.guards, ...[]]
-    executeAssignment2StateModificationNode.params = [...executeAssignment2StateModificationNode.params, ...[Object.assign( new TypedElement(), JSON.parse(`{ "name": "resRight", "type": "int"}`))]]
+    executeAssignment2StateModificationNode.params = [...executeAssignment2StateModificationNode.params, ...[Object.assign( new TypedElement(), JSON.parse(`{ "name": "resRight", "type": "Number"}`))]]
     
     previousNode = executeAssignment2StateModificationNode
     }
     previousNode.functionsNames = [...previousNode.functionsNames, ...[`${previousNode.uid}executeAssignment2`]] 
-    previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`int ${getName(node)}2520 = resRight; // was ${getName(node)}2354; but using the parameter name now`,`//TODO: fix this and avoid memory leak by deleting, constructing appropriately
-                const std::lock_guard<std::mutex> lock(sigma_mutex);                                    
-                (*((int*)sigma["${getName(node.variable)}currentValue"])) = ${getName(node)}2520;`]] //AA
+    previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let Number ${getName(node)}2520 = resRight; // was ${getName(node)}2354; but using the parameter name now`,`                                 
+                sigma.set("${getName(node.variable)}currentValue", new Number(${getName(node)}2520))`]] //AA
     
         {let e = ccfg.addEdge(previousNode,terminatesAssignmentNode)
         e.guards = [...e.guards, ...[]] //EE
@@ -808,12 +806,12 @@ export class CCFGVisitor implements SimpleLVisitor {
     }
     
         {let e = ccfg.addEdge(previousNode,ConjunctionOrJoinNode)
-        e.guards = [...e.guards, ...[`(bool)${getName(node.lhs)}terminates == false`]] //EE
+        e.guards = [...e.guards, ...[`Boolean(${getName(node.lhs)}terminates == false)`]] //EE
         }
         
-        previousNode.returnType = "bool"
+        previousNode.returnType = "Boolean"
         previousNode.functionsNames = [`${previousNode.uid}evaluateConjunction2`] //overwrite existing name
-        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`bool ${getName(node)}terminates =  false;`,`return ${getName(node)}terminates;`]] //GG
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`Boolean ${getName(node)}terminates =  false;`,`return ${getName(node)}terminates;`]] //GG
     
         let rhsTerminatesNodeevaluateConjunction3 = ccfg.getNodeFromName("terminates"+getASTNodeUID(node.rhs))
             if(rhsTerminatesNodeevaluateConjunction3 == undefined){
@@ -838,12 +836,12 @@ export class CCFGVisitor implements SimpleLVisitor {
     }
     
         {let e = ccfg.addEdge(previousNode,ConjunctionOrJoinNode)
-        e.guards = [...e.guards, ...[`(bool)${getName(node.rhs)}terminates == false`]] //EE
+        e.guards = [...e.guards, ...[`Boolean(${getName(node.rhs)}terminates == false)`]] //EE
         }
         
-        previousNode.returnType = "bool"
+        previousNode.returnType = "Boolean"
         previousNode.functionsNames = [`${previousNode.uid}evaluateConjunction3`] //overwrite existing name
-        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`bool ${getName(node)}terminates =  false;`,`return ${getName(node)}terminates;`]] //GG
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`Boolean ${getName(node)}terminates =  false;`,`return ${getName(node)}terminates;`]] //GG
     
     let evaluateConjunction4AndJoinNode: Node = new AndJoin("andJoinNode"+getASTNodeUID(node.lhs))
     ccfg.addNode(evaluateConjunction4AndJoinNode)
@@ -881,12 +879,12 @@ export class CCFGVisitor implements SimpleLVisitor {
     }
     
         {let e = ccfg.addEdge(previousNode,ConjunctionOrJoinNode)
-        e.guards = [...e.guards, ...[`(bool)${getName(node.lhs)}terminates == true`,`(bool)${getName(node.rhs)}terminates == true`]] //EE
+        e.guards = [...e.guards, ...[`Boolean(${getName(node.lhs)}terminates == true)`,`Boolean(${getName(node.rhs)}terminates == true)`]] //EE
         }
         
-        previousNode.returnType = "bool"
+        previousNode.returnType = "Boolean"
         previousNode.functionsNames = [`${previousNode.uid}evaluateConjunction4`] //overwrite existing name
-        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`bool ${getName(node)}terminates =  true;`,`return ${getName(node)}terminates;`]] //GG
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`Boolean ${getName(node)}terminates =  true;`,`return ${getName(node)}terminates;`]] //GG
     
         return [ccfg,startsConjunctionNode,terminatesConjunctionNode]
     }
@@ -954,8 +952,8 @@ export class CCFGVisitor implements SimpleLVisitor {
         if(multipleSynchroNode == undefined){
             throw new Error("impossible to be there andJoinNode"+getASTNodeUID(node.right))
         }
-        multipleSynchroNode.params = [...multipleSynchroNode.params, ...[Object.assign( new TypedElement(), JSON.parse(`{ "name": "n2", "type": "int"}`)),Object.assign( new TypedElement(), JSON.parse(`{ "name": "n1", "type": "int"}`))]]
-        multipleSynchroNode.functionsDefs = [...multipleSynchroNode.functionsDefs, ...[`int ${getName(node)}4267 = n2;`,`int ${getName(node)}4292 = n1;`]] //HH
+        multipleSynchroNode.params = [...multipleSynchroNode.params, ...[Object.assign( new TypedElement(), JSON.parse(`{ "name": "n2", "type": "Number"}`)),Object.assign( new TypedElement(), JSON.parse(`{ "name": "n1", "type": "Number"}`))]]
+        multipleSynchroNode.functionsDefs = [...multipleSynchroNode.functionsDefs, ...[`Number ${getName(node)}4267 = n2;`,`Number ${getName(node)}4292 = n1;`]] //HH
     }
     
     {
@@ -970,9 +968,9 @@ export class CCFGVisitor implements SimpleLVisitor {
         e.guards = [...e.guards, ...[]] //EE
         }
         
-        previousNode.returnType = "int"
+        previousNode.returnType = "Number"
         previousNode.functionsNames = [`${previousNode.uid}finishPlus`] //overwrite existing name
-        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`int ${getName(node)}4411 = n1; // was ${getName(node)}4292; but using the parameter name now`,`int ${getName(node)}4416 = n2; // was ${getName(node)}4267; but using the parameter name now`,`int ${getName(node)}4410 = ${getName(node)}4411 + ${getName(node)}4416;`,`int ${getName(node)}terminates =  ${getName(node)}4410;`,`return ${getName(node)}terminates;`]] //GG
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let Number ${getName(node)}4411 = n1; // was ${getName(node)}4292; but using the parameter name now`,`let Number ${getName(node)}4416 = n2; // was ${getName(node)}4267; but using the parameter name now`,`Number ${getName(node)}4410 = ${getName(node)}4411 + ${getName(node)}4416;`,`Number ${getName(node)}terminates =  ${getName(node)}4410;`,`return ${getName(node)}terminates;`]] //GG
     
         return [ccfg,startsPlusNode,terminatesPlusNode]
     }
@@ -981,7 +979,7 @@ export class CCFGVisitor implements SimpleLVisitor {
         let ccfg: ContainerNode = new ContainerNode(getASTNodeUID(node))
 
 
-        let startsBooleanConstNode: Node = new Step("starts"+getASTNodeUID(node),[`sigma["${getName(node)}constantValue"] = new bool(${node.value});`])
+        let startsBooleanConstNode: Node = new Step("starts"+getASTNodeUID(node),[`sigma.set("${getName(node)}constantValue",new Boolean(${node.value});//A1`])
         if(startsBooleanConstNode.functionsDefs.length>0){
             startsBooleanConstNode.returnType = "void"
         }
@@ -1007,9 +1005,9 @@ export class CCFGVisitor implements SimpleLVisitor {
         e.guards = [...e.guards, ...[]] //EE
         }
         
-        previousNode.returnType = "bool"
+        previousNode.returnType = "Boolean"
         previousNode.functionsNames = [`${previousNode.uid}evalBooleanConst`] //overwrite existing name
-        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`const std::lock_guard<std::mutex> lock(sigma_mutex);`,`bool ${getName(node)}4630 = *(bool *) sigma["${getName(node)}constantValue"];//constantValue}`,`bool ${getName(node)}terminates =  ${getName(node)}4630;`,`return ${getName(node)}terminates;`]] //GG
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let Boolean ${getName(node)}4630 = Boolean(sigma.get("${getName(node)}constantValue");//constantValue}`,`Boolean ${getName(node)}terminates =  ${getName(node)}4630;`,`return ${getName(node)}terminates;`]] //GG
     
         return [ccfg,startsBooleanConstNode,terminatesBooleanConstNode]
     }
@@ -1126,7 +1124,7 @@ export class CCFGVisitor implements SimpleLVisitor {
             }
             {
             let e = ccfg.addEdge(previousNode,bodyStartsNodewhileBodyStart)
-            e.guards = [...e.guards, ...[`(bool)${getName(node.cond)}terminates == true`]] //FF
+            e.guards = [...e.guards, ...[`Boolean(${getName(node.cond)}terminates == true)`]] //FF
             }
             
         }else{
@@ -1225,7 +1223,7 @@ export class CCFGVisitor implements SimpleLVisitor {
     }
     
         {let e = ccfg.addEdge(previousNode,terminatesWhileNode)
-        e.guards = [...e.guards, ...[`(bool)${getName(node.cond)}terminates == false`]] //EE
+        e.guards = [...e.guards, ...[`Boolean(${getName(node.cond)}terminates == false)`]] //EE
         }
         
         previousNode.returnType = "void"
@@ -1239,7 +1237,7 @@ export class CCFGVisitor implements SimpleLVisitor {
         let ccfg: ContainerNode = new ContainerNode(getASTNodeUID(node))
 
 
-        let startsPeriodicBlocNode: Node = new Step("starts"+getASTNodeUID(node),[`sigma["${getName(node)}blocTrigger"] = new int(${node.time});`])
+        let startsPeriodicBlocNode: Node = new Step("starts"+getASTNodeUID(node),[`sigma.set("${getName(node)}blocTrigger",new Number(${node.time});//A1`])
         if(startsPeriodicBlocNode.functionsDefs.length>0){
             startsPeriodicBlocNode.returnType = "void"
         }

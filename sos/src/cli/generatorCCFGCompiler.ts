@@ -930,11 +930,11 @@ function visitValuedEventRefComparison(valuedEventRefComparison: ValuedEventRefC
         //     varType = inferType(valuedEventRefComparison.literal, new Map())
         // }
         if(valuedEventRefComparison.$type == "ImplicitValuedEventRefConstantComparison"){
-            res = res + `\`(bool)\${getName(node.${(valuedEventRefComparison.membercall as MemberCall).element?.$refText})}${"terminates"} == ${(typeof(v) == "string")?v:v.$cstNode?.text}\``
+            res = res + `\`Boolean(\${getName(node.${(valuedEventRefComparison.membercall as MemberCall).element?.$refText})}${"terminates"} == ${(typeof(v) == "string")?v:v.$cstNode?.text})\``
         }
         if(valuedEventRefComparison.$type == "ExplicitValuedEventRefConstantComparison"){
             let prev = (valuedEventRefComparison.membercall as MemberCall)?.previous
-            res = res + `\`(bool)\${getName(node.${prev != undefined?(prev as MemberCall).element?.ref?.name:"TOFIX"})}${(valuedEventRefComparison.membercall as MemberCall).element?.$refText} == ${(typeof(v) == "string")?v:v.$cstNode?.text}\``
+            res = res + `\`Boolean(\${getName(node.${prev != undefined?(prev as MemberCall).element?.ref?.name:"TOFIX"})}${(valuedEventRefComparison.membercall as MemberCall).element?.$refText} == ${(typeof(v) == "string")?v:v.$cstNode?.text})\``
         }
     }
     return res
@@ -951,7 +951,7 @@ function visitValuedEventRef(valuedEventRef: ValuedEventRef | undefined): [strin
     if (valuedEventRef != undefined) {
         let v = valuedEventRef.tempVar
         let varType = inferType(v, new Map())
-        let typeName = getCPPVariableTypeName(varType.$type)
+        let typeName = getJSVariableTypeName(varType.$type)
         if(v != undefined && valuedEventRef.$type == "ImplicitValuedEventRef"){
             res = res + `\`${typeName} \${getName(node)}${v.$cstNode?.offset} = ${v.name};\``//valuedEventRef  \${getName(node.${(valuedEventRef.membercall as MemberCall).element?.$refText})}${"terminates"}\``
             let param:TypedElement = new TypedElement(v.name, typeName)
@@ -982,7 +982,7 @@ function visitVariableDeclaration(runtimeState: VariableDeclaration[] | undefine
        // res = res + `\`const std::lock_guard<std::mutex> lock(sigma_mutex);\`,`
         let sep = ""
         for(let vardDecl of runtimeState){
-            res = res + sep + `\`sigma["\${getName(node)}${vardDecl.name}"] = new ${getVariableType(vardDecl.type)}(${(vardDecl.value != undefined)?`\${node.${(vardDecl.value as MemberCall).element?.$refText}}`:""});\``
+            res = res + sep + `\`sigma.set("\${getName(node)}${vardDecl.name}",new ${getVariableType(vardDecl.type)}(${(vardDecl.value != undefined)?`\${node.${(vardDecl.value as MemberCall).element?.$refText}}`:""});//A1\``
             sep= ","
         }
     }
@@ -998,7 +998,7 @@ function visitValuedEventEmission(valuedEmission: ValuedEventEmission | undefine
     var res : string = ""
     if (valuedEmission != undefined) {
         let varType = inferType(valuedEmission.data, new Map())
-        let typeName = getCPPVariableTypeName(varType.$type)
+        let typeName = getJSVariableTypeName(varType.$type)
 
         if(valuedEmission.data != undefined && valuedEmission.data.$type == "MemberCall"){
             res = createVariableFromMemberCall(valuedEmission.data as MemberCall, typeName)
@@ -1006,12 +1006,12 @@ function visitValuedEventEmission(valuedEmission: ValuedEventEmission | undefine
         if(valuedEmission.data != undefined && valuedEmission.data.$type == "BinaryExpression"){
             let lhs = (valuedEmission.data as BinaryExpression).left
             let lhsType = inferType(lhs, new Map())
-            let lhsTypeName = getCPPVariableTypeName(lhsType.$type)
+            let lhsTypeName = getJSVariableTypeName(lhsType.$type)
             let leftRes = createVariableFromMemberCall(lhs as MemberCall, lhsTypeName)
             res = res + leftRes+","
             let rhs = (valuedEmission.data as BinaryExpression).right
             let rhsType = inferType(rhs, new Map())
-            let rhsTypeName = getCPPVariableTypeName(rhsType.$type)
+            let rhsTypeName = getJSVariableTypeName(rhsType.$type)
             let rightRes = createVariableFromMemberCall(rhs as MemberCall, rhsTypeName)
             res = res + rightRes+","
             let applyOp = (valuedEmission.data as BinaryExpression).operator
@@ -1040,14 +1040,13 @@ function createVariableFromMemberCall(data: MemberCall, typeName: string): strin
         return res
     }
     if (elem?.$type == "VariableDeclaration") {
-        res = res +`\`const std::lock_guard<std::mutex> lock(sigma_mutex);\`,`
-        res = res + `\`${typeName} \${getName(node)}${data.$cstNode?.offset} = *(${typeName} *) sigma["\${getName(node${prev != undefined ? "."+prev.$refText : ""})}${elem.name}"];//${elem.name}}\``
+        res = res + `\`let ${typeName} \${getName(node)}${data.$cstNode?.offset} = ${typeName}(sigma.get("\${getName(node${prev != undefined ? "."+prev.$refText : ""})}${elem.name}");//${elem.name}}\``
     } 
     else if (elem?.$type == "TemporaryVariable") {
-        res = res + `\`${typeName} \${getName(node)}${data.$cstNode?.offset} = ${elem.name}; // was \${getName(node)}${prev != undefined ? prev?.ref?.$cstNode?.offset : elem.$cstNode?.offset}; but using the parameter name now\``
+        res = res + `\`let ${typeName} \${getName(node)}${data.$cstNode?.offset} = ${elem.name}; // was \${getName(node)}${prev != undefined ? prev?.ref?.$cstNode?.offset : elem.$cstNode?.offset}; but using the parameter name now\``
     }
     else /*if (elem?.$type == "Assignment")*/ {
-        res = res + `\`${typeName} \${getName(node)}${data.$cstNode?.offset} = \${node.${data.$cstNode?.text}};\ //${elem.name}\``
+        res = res + `\`let ${typeName} \${getName(node)}${data.$cstNode?.offset} = \${node.${data.$cstNode?.text}};\ //${elem.name}\``
     }
     return res
 }
@@ -1078,10 +1077,10 @@ function visitStateModifications(ruleCF: RuleControlFlow, actionsString: string)
          */
         let typeName = ""; 
         let rhsType = inferType(action.rhs, new Map());
-        typeName = getCPPVariableTypeName(rhsType.$type);
+        typeName = getJSVariableTypeName(rhsType.$type);
         if (typeName == "unknown") {
             let lhsType = inferType(action.lhs, new Map())
-            typeName = getCPPVariableTypeName(lhsType.$type);
+            typeName = getJSVariableTypeName(lhsType.$type);
         }
         // let rhsPrev = ((action.rhs as MemberCall).previous as MemberCall)?.element
         let rhsElem = (action.rhs as MemberCall).element?.ref
@@ -1098,31 +1097,29 @@ function visitStateModifications(ruleCF: RuleControlFlow, actionsString: string)
         sep = ","
         
         if(rhsElem.$type == "TemporaryVariable"){
-            actionsString = actionsString + sep + `\`//TODO: fix this and avoid memory leak by deleting, constructing appropriately
-                const std::lock_guard<std::mutex> lock(sigma_mutex);                                    
-                (*((${typeName}*)sigma[\"\${getName(node${lhsPrev != undefined ? "."+lhsPrev.$refText : ""})}${lhsElem.name}"])) = \${getName(node)}${(action.rhs as MemberCall).$cstNode?.offset};\``;
+            actionsString = actionsString + sep + `\`                                 
+                sigma.set(\"\${getName(node${lhsPrev != undefined ? "."+lhsPrev.$refText : ""})}${lhsElem.name}", new ${typeName}(\${getName(node)}${(action.rhs as MemberCall).$cstNode?.offset}))\``;
         }else{
-            actionsString = actionsString + sep + `\`//TODO: fix this and avoid memory leak by deleting, constructing appropriately
-                const std::lock_guard<std::mutex> lock(sigma_mutex);
-                (*((${typeName}*)sigma[\"\${getName(node${lhsPrev != undefined ? "."+lhsPrev.$refText : ""})}${lhsElem.name}"])) = \${getName(node)}${(action.rhs as MemberCall).$cstNode?.offset};\``;
+            actionsString = actionsString + sep + `\`
+                sigma.set(\"\${getName(node${lhsPrev != undefined ? "."+lhsPrev.$refText : ""})}${lhsElem.name}", new ${typeName}(\${getName(node)}${(action.rhs as MemberCall).$cstNode?.offset}))\``;
             
         }
     }
     return actionsString;
 }
 
-function getCPPVariableTypeName(typeName: string): string {
+function getJSVariableTypeName(typeName: string): string {
     switch (typeName) {
         case "integer":
-            return "int";
+            return "Number";
         case "string":
-            return "std::string";
+            return "String";
         case "boolean":
-            return "bool";
+            return "Boolean";
         case "void":
-            return "void";
+            return "";
         case "timer": //TO BE FIXED
-            return "int";    
+            return "Number";    
         default:
             return "unknown";
     }
@@ -1132,9 +1129,9 @@ function getCPPVariableTypeName(typeName: string): string {
 
 function getVariableType(type: TypeReference | undefined) {
     if (type?.primitive) {
-        return getCPPVariableTypeName(type.primitive.name);
+        return getJSVariableTypeName(type.primitive.name);
     } else if (type?.reference && type.reference.ref?.name != undefined) {
-        return getCPPVariableTypeName(type.reference.ref?.name);
+        return getJSVariableTypeName(type.reference.ref?.name);
     }
     return "unknown"
 }

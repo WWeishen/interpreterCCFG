@@ -138,10 +138,6 @@ int result34accessVarRef = function34accessVarRef();
             thread20.detach();
                 {
 
-                    //WARNING !! temporary code to test
-    for(auto entry : sigma){
-        std::cout << entry.first << " : " << *((int*)entry.second) << std::endl;
-    }
             Void fakeParam39;
             queue39.push(fakeParam39);
                 

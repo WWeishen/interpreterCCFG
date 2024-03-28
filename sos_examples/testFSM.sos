@@ -17,11 +17,11 @@ open FSM {
     var currentState:State;
 
                     when starts
-    ----------------------------------------- init
+    --------------------------------------------           init
      <this,σ> ~> currentState := initialState;
                  <initialState,σ>
 
-                when (terminates)
+              when (terminates)
     -------------------------------------                  end
           <this,σ> ~> terminates
                         
