@@ -197,9 +197,11 @@ function8initializeVar();
 functioninit9Variable();
 function11initializeVar();
 
-            LockingQueue<int> queue25;         
+            LockingQueue<int> queue25;
+            LockingQueue<int> queue36;         
             LockingQueue<Void> queue15;
-            LockingQueue<int> queue56;         
+            LockingQueue<int> queue56;
+            LockingQueue<int> queue71;         
             LockingQueue<Void> queue74;
             LockingQueue<bool> queue79;
             LockingQueue<bool> queue87;
@@ -247,7 +249,6 @@ int result23accessVarRef = function23accessVarRef();
                 
             std::thread thread27([&](){
 
-            LockingQueue<int> queue36;
             std::thread thread32([&](){
 int result32accessVarRef = function32accessVarRef();
 {
@@ -342,7 +343,6 @@ int result54accessVarRef = function54accessVarRef();
         }
             //Choice node
         if((bool)VarRef7_4_7_6terminates == false){
-            LockingQueue<int> queue71;
             std::thread thread67([&](){
 int result67accessVarRef = function67accessVarRef();
 {

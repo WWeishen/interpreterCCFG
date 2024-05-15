@@ -34,6 +34,8 @@ export abstract class Node {
     isCycleInitiator: boolean = false;
     cycles: Node[][] = []
 
+    isVisited: boolean = false;
+
     constructor(value: any, theActions: string[] = []) {
         this.uid = Node.uidCounter++;
         this.value = value;
@@ -45,18 +47,24 @@ export abstract class Node {
     }
 
     isBefore(n2: Node): boolean {
+        if(this.isVisited){
+            return false;
+        }
+        this.isVisited = true;
         if (this.outputEdges.length == 0){
+            this.isVisited = false;
             return false;
         }
         for (let e of this.outputEdges) {
             if (e.to === n2){
+                this.isVisited = false;
                 return true;
             }
         }
         for(let e of this.outputEdges){
             return e.to.isBefore(n2);
         }
-
+        this.isVisited = false;
         return false
     }
 
